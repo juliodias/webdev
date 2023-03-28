@@ -5,6 +5,12 @@
             [compojure.route :as route]
             [ring.handler.dump :refer [handle-dump]]))
 
+(def operators
+  {"+" +
+   "-" -
+   "/" /
+   "*" *})
+
 (defn say
   [greet]
   {:status 200
@@ -35,24 +41,19 @@
      :body    (str "Yo, " name "!")
      :headers {}}))
 
-(def operators
-  {"+" +
-   "-" -
-   "/" /
-   "*" *})
-
 (defn calculate
   [req]
-  (let [route-params  (:route-params req)
-        first-number  (Integer. (:first-number route-params))
-        second-number (Integer. (:second-number route-params))
-        operator      (get operators (:operator route-params))]
+  (let [route-params    (:route-params req)
+        first-number    (read-string (:first-number route-params))
+        second-number   (read-string (:second-number route-params))
+        operator-param  (:operator route-params)
+        operator        (get operators operator-param)]
     (if operator
       {:status  200
-       :body    (str "The result from the operation: " operator " between: " first-number " and " second-number " is: " (operator first-number second-number))
+       :body    (str "The result from the operation " operator-param " between " first-number " and " second-number " is: " (operator first-number second-number))
        :headers {}}
       {:status 404
-       :body    (str "Unknown operator: " (:operator route-params))
+       :body    (str "Unknown operator: " operator-param)
        :headers {}})))
 
 (defroutes app
